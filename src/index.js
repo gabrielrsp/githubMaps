@@ -1,6 +1,5 @@
 import React, { Component } from "react";
 import {
-  TouchableHighlight,
   StyleSheet,
   Alert,
   Modal,
@@ -9,19 +8,34 @@ import {
   TextInput,
   View
 } from "react-native";
-import MapView from "react-native-maps";
+import MapView, { Marker } from "react-native-maps";
+import "./config/ReactotronConfig";
 
 export default class App extends Component {
-  state = {
-    modalVisible: false
-  };
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      modalVisible: false,
+      markerVisible: false,
+      markers: []
+    };
+    this.handlePress = this.handlePress.bind(this);
+  }
+  handlePress(e) {
+    this.setState({
+      markers: [
+        ...this.state.markers,
+        {
+          coordinate: e.nativeEvent.coordinate
+        }
+      ]
+    });
+  }
 
   setModalVisible(visible) {
     this.setState({ modalVisible: visible });
   }
-  handlerLongClick = () => {
-    Alert.alert(" Show de Bola");
-  };
 
   render() {
     return (
@@ -34,10 +48,16 @@ export default class App extends Component {
             latitudeDelta: 0.0042,
             longitudeDelta: 0.0031
           }}
-          onLongPress={() => {
+          onLongPress={e => {
             this.setModalVisible(true);
+            this.handlePress(e);
           }}
-        />
+          // onPress={this.handlePress}
+        >
+          {this.state.markers.map(marker => {
+            return <Marker {...marker} />;
+          })}
+        </MapView>
 
         <Modal
           animationType="slide"
